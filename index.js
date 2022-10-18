@@ -24,6 +24,11 @@ let persons = [
       "id": 4,
       "name": "Mary Poppendieck", 
       "number": "39-23-6423122"
+    },
+    {
+        "id": 5,
+        "name": "Can Doe",
+        "number": "90-535-8356562"
     }
 ]
 
@@ -31,6 +36,10 @@ app.get("/api/persons", (req,res) =>{
     res.json(persons)
 })
 
+app.get("/info", (req,res) => {
+    const date = new Date().toString()
+    res.send(`<p>Phonebook has info for ${persons.length} people</p>${date}<p></p>`)
+})
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
