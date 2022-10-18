@@ -1,4 +1,3 @@
-const { response } = require("express")
 const express = require("express")
 const app = express()
 app.use(express.json())
@@ -63,6 +62,16 @@ const generateNewId = () => {
 }
 app.post("/api/persons", (req,res) => {
   const body = req.body
+  if(!body.name || !body.number){
+    return res.status(400).json({
+      error: "content-missing"
+    })
+  }
+  else if (persons.some((el) => el.name === body.name)){
+    return res.status(400).json({
+      error: "duplicate-entry"
+    })
+  }
   const newPerson = {
     id: generateNewId(),
     name: body.name,
