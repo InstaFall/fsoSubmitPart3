@@ -10,8 +10,8 @@ const requestLogger = (request, response, next) => {
   console.log('---')
   next()
 }
-
-app.use(morgan('tiny'))
+morgan.token('info',(req,res) => `{"name":"${req.body.name}","number":"${req.body.number}"}`)
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :info'))
 const PORT = 3001
 
 let persons = [
@@ -78,7 +78,7 @@ app.post("/api/persons", (req, res) => {
     })
   }
   else if (persons.some((el) => el.name === body.name)) {
-    return res.status(400).json({
+    return res.status(409).json({
       error: "duplicate-entry"
     })
   }
