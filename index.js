@@ -10,7 +10,7 @@ const requestLogger = (request, response, next) => {
   console.log('---')
   next()
 }
-morgan.token('info',(req,res) => `{"name":"${req.body.name}","number":"${req.body.number}"}`)
+morgan.token('info',(req,res) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :info'))
 const PORT = 3001
 
