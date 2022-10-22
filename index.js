@@ -1,15 +1,10 @@
 const express = require("express")
 const app = express()
 const morgan = require("morgan")
+const cors = require('cors')
+app.use(cors())
 app.use(express.json())
 
-const requestLogger = (request, response, next) => {
-  console.log('Method:', request.method)
-  console.log('Path:  ', request.path)
-  console.log('Body:  ', request.body)
-  console.log('---')
-  next()
-}
 morgan.token('info',(req,res) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :info'))
 const PORT = 3001
@@ -44,7 +39,7 @@ let persons = [
 
 app.get("/api/persons", (req, res) => {
   res.json(persons)
-})
+}) 
 
 app.get("/info", (req, res) => {
   const date = new Date().toString()
