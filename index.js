@@ -4,8 +4,14 @@ const app = express()
 const morgan = require("morgan")
 const cors = require('cors') 
 const Person = require('./models/person')
-//app.use(cors())
 
+//app.use(cors())
+const errHandler = (error, request, response,next) =>{
+  if (error.name === "CastError"){
+    return response.status(400).send({error: 'malformatted id'})
+  }
+  next(error)
+}
 app.use(express.json())
 app.use(express.static('build'))
 
@@ -24,23 +30,22 @@ app.get("/info", (req, res) => {
   res.send(`<p>Phonebook has info for ${persons.length} people</p>${date}<p></p>`)
 })
 
-app.get("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id)
-  const person = persons.find((el) => el.id === id)
-
-  if (person) {
-    res.json(person)
-  }
-  else res.status(404).end()
+app.get("/api/persons/:id", (req, res, next) => {
+  Person.findById(req.params.id).then((person) => {
+    if(person){
+      res.json(person)
+    } else {
+      res.status(404).end()
+    }
+  }).catch((err) => next(err))
 })
 
-app.delete("/api/persons/:id", (req, res) => {
-  const id = req.params.id
-  Person.findByIdAndDelete(id).then(response => {
-    console.log('Person deleted!!')
+app.delete("/api/persons/:id", (req, res, next) => {
+  Person.findByIdAndDelete(req.params.id)
+  .then(response => {
     res.status(204).end()
-  }).catch(err => res.status(404).json({error: `no person in the database! ${err.message}`}))
-  
+  })
+  .catch(err => next(err))
 })
 
 app.post("/api/persons", (req, res) => {
@@ -74,6 +79,7 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint)
 
+app.use(errHandler)
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
