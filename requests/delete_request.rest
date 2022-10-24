@@ -1,1 +1,1 @@
-DELETE https://twilight-resonance-8797.fly.dev/api/persons/8678233
+DELETE http://localhost:3001/api/persons/635709ca2c06e632f649bb86/

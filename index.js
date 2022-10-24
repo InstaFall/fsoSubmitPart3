@@ -1,44 +1,22 @@
+require('dotenv').config()
 const express = require("express")
 const app = express()
 const morgan = require("morgan")
-const cors = require('cors')
+const cors = require('cors') 
+const Person = require('./models/person')
 //app.use(cors())
+
 app.use(express.json())
 app.use(express.static('build'))
 
 morgan.token('info',(req,res) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :info'))
 
-let persons = [
-  {
-    "id": 1,
-    "name": "Arto Hellas",
-    "number": "040-123456"
-  },
-  {
-    "id": 2,
-    "name": "Ada Lovelace",
-    "number": "39-44-5323523"
-  },
-  {
-    "id": 3,
-    "name": "Dan Abramov",
-    "number": "12-43-234345"
-  },
-  {
-    "id": 4,
-    "name": "Mary Poppendieck",
-    "number": "39-23-6423122"
-  },
-  {
-    "id": 5,
-    "name": "Can Doe",
-    "number": "90-535-8356562"
-  }
-]
 
 app.get("/api/persons", (req, res) => {
-  res.json(persons)
+  Person.find({}).then((persons) => {
+    res.json(persons)
+  })
 }) 
 
 app.get("/info", (req, res) => {
@@ -57,14 +35,14 @@ app.get("/api/persons/:id", (req, res) => {
 })
 
 app.delete("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id)
-  persons = persons.filter((el) => el.id !== id)
-  res.status(204).end()
+  const id = req.params.id
+  Person.findByIdAndDelete(id).then(response => {
+    console.log('Person deleted!!')
+    res.status(204).end()
+  }).catch(err => res.status(404).json({error: `no person in the database! ${err.message}`}))
+  
 })
 
-const generateNewId = () => {
-  return Math.floor(Math.random() * (9999999) + 20)
-}
 app.post("/api/persons", (req, res) => {
   const body = req.body
   if (!body.name || !body.number) {
@@ -72,19 +50,22 @@ app.post("/api/persons", (req, res) => {
       error: "content-missing"
     })
   }
-  else if (persons.some((el) => el.name === body.name)) {
-    return res.status(409).json({
-      error: "duplicate-entry"
-    })
-  }
-  const newPerson = {
-    id: generateNewId(),
-    name: body.name,
-    number: body.number
-  }
-  persons.push(newPerson)
-  console.log(newPerson)
-  res.json(newPerson)
+  Person.find({name: body.name}).then(person => {
+    if (person.some(el => el.name === body.name)) { 
+      return res.status(409).json({
+        error: "duplicate-entry"
+      })
+    }
+    else{
+      const newPerson = new Person({
+        name: body.name,
+        number: body.number
+      })
+      newPerson.save().then((savedPerson) => {
+        res.json(savedPerson)
+      }).catch((err) => res.json(err.message))
+    }
+  })
 })
 
 const unknownEndpoint = (request, response) => {
