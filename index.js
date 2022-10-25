@@ -21,8 +21,8 @@ app.get("/api/persons", (req, res) => {
 
 app.get("/info", (req, res) => {
   const date = Date()
-  Person.countDocuments({}, (err,count) => {
-    res.send(`<p>Phonebook has info for ${count} people</p>${date}<p></p>`)  
+  Person.countDocuments({}, (err, count) => {
+    res.send(`<p>Phonebook has info for ${count} people</p>${date}<p></p>`)
   })
 })
 
@@ -72,7 +72,7 @@ app.put('/api/persons/:id', (req, res, next) => {
     number: body.number,
     id: body.id
   }
-  Person.findByIdAndUpdate(req.params.id, updatedObject, { new: true, runValidators:true, context: 'query' })
+  Person.findByIdAndUpdate(req.params.id, updatedObject, { new: true, runValidators: true, context: 'query' })
     .then(result => {
       //console.log(result)
       res.json(result)
@@ -91,7 +91,7 @@ const errHandler = (error, request, response, next) => {
     return response.status(400).send({ error: 'malformatted id' })
   } else if (error.name === "ValidationError") {
     console.log(error.message)
-    return response.status(400).json({error: error.message})
+    return response.status(400).json({ error: error.message })
   }
   next(error)
 }
