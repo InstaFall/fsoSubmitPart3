@@ -18,26 +18,26 @@ const personSchema = new mongoose.Schema({
 const Person = mongoose.model('Person', personSchema)
 
 if (process.argv.length === 3){
-    mongoose.connect(url).then((arg) => {
-        console.log('connected!\nPhonebook:')
-        Person.find({}).then(result => {
-            result.forEach(person => {
-                console.log(person)
-            })
-        })
-        mongoose.connection.close()
-        })
-    }
+  mongoose.connect(url).then(() => {
+    console.log('connected!\nPhonebook:')
+    Person.find({}).then(result => {
+      result.forEach(person => {
+        console.log(person)
+      })
+    })
+    mongoose.connection.close()
+  })
+}
 
-    if(process.argv.length === 5){
-        mongoose.connect(url).then((arg) => {
-            console.log('connected')
-            const person = new Person ({
-                name: process.argv[3],
-                number: process.argv[4]
-            })
-            return person.save()
-      }).then((arg) => {
-        console.log(`added ${arg.name} number ${arg.number} to the phonebook!`)
-        mongoose.connection.close()})
-    }
+if(process.argv.length === 5){
+  mongoose.connect(url).then(() => {
+    console.log('connected')
+    const person = new Person ({
+      name: process.argv[3],
+      number: process.argv[4]
+    })
+    return person.save()
+  }).then((arg) => {
+    console.log(`added ${arg.name} number ${arg.number} to the phonebook!`)
+    mongoose.connection.close()})
+}
